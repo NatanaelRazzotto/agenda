@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.DAO;
 import model.JavaBeans;
 
-@WebServlet(urlPatterns = { "/Controller", "/main","/insert"})
+@WebServlet(urlPatterns = { "/Controller", "/main","/insert","/select","/update"})
 public class Controller extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	DAO dao = new DAO();
@@ -36,6 +36,12 @@ public class Controller extends HttpServlet {
 		}
 		else if (action.equals("/insert")) {
 			novoContato(request,response);
+		}
+		else if (action.equals("/select")) {
+			listarContato(request,response);
+		}
+		else if (action.equals("/update")) {
+			editarContato(request,response);
 		}
 		else {
 			response.sendRedirect("index.html");
@@ -82,5 +88,42 @@ public class Controller extends HttpServlet {
 		response.sendRedirect("main");
 		
 	}
+	//editar contato	
+	protected void listarContato(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {		
+		//recebimento do id do contato que será editado
+		String idcon = request.getParameter("idcon");
+		//setar a variavel javabeans
+		contato.setIdcon(idcon);
+		//execultar o metodo selecionarcontato(DAO)
+		dao.selecionarContato(contato);
+		//teste de recebimento
+		System.out.println(contato.getIdcon());
+		System.out.println(contato.getNome());
+		//setar os atributos do formulario com o conteudo do java beans
+		request.setAttribute("idcon", contato.getIdcon());
+		request.setAttribute("nome", contato.getNome());
+		request.setAttribute("fone", contato.getFone());
+		request.setAttribute("email", contato.getEmail());
+		//encaminhar ao documento editar.jsp
+		RequestDispatcher rd = request.getRequestDispatcher("editar.jsp");
+		rd.forward(request, response);
+	}
+	
+	protected void editarContato(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {		
+		//teste de recebimento
+		System.out.println(request.getParameter("idcon"));
+		//setar as variaveis javabeans
+		contato.setIdcon(request.getParameter("idcon"));
+		contato.setNome(request.getParameter("nome"));
+		contato.setFone(request.getParameter("fone"));  
+		contato.setEmail(request.getParameter("email"));
+		//executar o method
+		dao.alterarContato(contato);
+		//redirecionar atualizado
+		response.sendRedirect("main");
+	}
+
 
 }
